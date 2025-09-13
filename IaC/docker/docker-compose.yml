@@ -1,0 +1,18 @@
+services:
+  service1:
+    build: ./terraform-and-gcloud
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./service1:/app
+    environment:
+      - ENV_VAR=example
+
+  service2:
+    build: ./ubuntu-for-deployments
+    ports:
+      - "8081:8081"
+    volumes:
+      - ./service2:/app
+    environment:
+      - ENV_VAR=example

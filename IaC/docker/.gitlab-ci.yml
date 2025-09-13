@@ -1,0 +1,32 @@
+before_script:
+  - cd IaC/docker
+
+variables:
+  DOCKER_HOST: tcp://docker:2375/
+  DOCKER_DRIVER: overlay2
+  DOCKER_TLS_CERTDIR: ""
+
+stages:
+  - build
+
+build-ubuntu-for-deployments:
+  stage: build
+  image: docker:24.0.5
+  services:
+    - docker:24.0.5-dind
+  script:
+    - echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER $CI_REGISTRY --password-stdin
+    - docker build -t $CI_REGISTRY_IMAGE/ubuntu-for-deployments:latest ./ubuntu-for-deployments
+    - docker push $CI_REGISTRY_IMAGE/ubuntu-for-deployments --all-tags
+  when: manual
+
+build-terraform-and-gcloud:
+  stage: build
+  image: docker:24.0.5
+  services:
+    - docker:24.0.5-dind
+  script:
+    - echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER $CI_REGISTRY --password-stdin
+    - docker build -t $CI_REGISTRY_IMAGE/terraform-and-gcloud:latest ./terraform-and-gcloud
+    - docker push $CI_REGISTRY_IMAGE/terraform-and-gcloud --all-tags
+  when: manual

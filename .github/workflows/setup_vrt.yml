@@ -1,0 +1,73 @@
+# **IMPORTANTE** Solamente se debe ejecutar esta acción una vez al inicio del desarrollo.
+# Si se ejecuta nuevamente, se eliminarán todos los archivos y configuraciones de los demás
+# frameworks, lo que podría causar problemas si se han realizado cambios o configuraciones
+# adicionales. Por lo tanto, se recomienda tener cuidado al ejecutar esta acción y asegurarse
+# de que es realmente necesario limpiar el repositorio.
+
+# **NOTA** Esta acción no se encarga de instalar los frameworks, sino de configurar el
+# repositorio para que esté listo para su uso. La instalación de los frameworks debe realizarse
+# manualmente por el usuario, siguiendo las instrucciones de los archivos README.
+
+# **NOTA** Se espera que el usuario tenga un conocimiento básico de los frameworks Se recomienda
+# realizar los tutoriales del curso y revisar la documentación oficial de cada framework para
+# obtener más información sobre su instalación y configuración.
+
+name: Setup VRT
+run-name: Setup ${{ github.event.inputs.framework }}
+
+permissions: write-all
+
+on:
+  workflow_dispatch:
+    inputs:
+      framework:
+        type: choice
+        description: Framework de regresión visual
+        options:
+          - resemblejs
+          - pixelmatch
+          - backstopjs
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "lts/iron"
+
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ github.repository }}
+          path: target-repo
+
+      - name: Checkout Base Repo
+        uses: actions/checkout@v4
+        with:
+          repository: Uniandes-MISW4103/proyecto-${{ github.event.inputs.framework }}-template
+          path: base-repo
+
+      - name: Copy Base Contents
+        run: |
+          echo "Copying files from base-repo to target-repo"
+            rsync -a --exclude='.git' --exclude='package-lock.json' base-repo/ target-repo/vrt/misw-4103-${{ github.event.inputs.framework }}/
+          echo "Files copied successfully"
+
+      - name: Set Framework Scripts
+        run: |
+          echo "Setting up framework scripts for ${{ github.event.inputs.framework }} to main package.json"
+          cd target-repo
+          npm pkg set scripts.${{ github.event.inputs.framework }}:install="npm install -w misw-4103-${{ github.event.inputs.framework }}"
+          npm pkg set scripts.${{ github.event.inputs.framework }}:prepare="npm run prepare -w misw-4103-${{ github.event.inputs.framework }}"
+          npm pkg set scripts.${{ github.event.inputs.framework }}:test="npm run test -w misw-4103-${{ github.event.inputs.framework }}"
+          npm pkg set scripts.${{ github.event.inputs.framework }}:ui="npm run test:ui -w misw-4103-${{ github.event.inputs.framework }}"
+
+      - name: Commit Changes to Target
+        run: |
+          cd target-repo; 
+          git config user.name "Equipo Docente MISW4103";
+          git config user.email "equipo-docente-misw4103@uniandes.edu.co";
+          git add .;
+          git commit -m "chore: initial setup for ${{ github.event.inputs.framework }} framework";
+          git push origin HEAD;

@@ -1,0 +1,47 @@
+import {
+  Controller,
+  Get,
+  Query,
+  Post,
+  Body,
+  Put,
+  Param,
+  Delete,
+} from '@nestjs/common';
+import { CreateCatDto, UpdateCatDto, ListAllEntities } from './dto';
+import { PubsubService } from '../pubsub/pubsub.service';
+
+@Controller('postgres')
+export class PostgresController {
+  memoryArray: Array<string>;
+
+  constructor(private readonly pubSubService: PubsubService) {
+    this.memoryArray = [];
+  }
+
+  @Post()
+  async create(@Body() createCatDto: CreateCatDto) {
+    await this.pubSubService.publish('cats', createCatDto);
+    return 'This action adds a new cat';
+  }
+
+  @Get()
+  findAll(@Query() query: ListAllEntities) {
+    return `This action returns all cats (limit: ${query.limit} items)`;
+  }
+
+  @Get(':id')
+  findOne(@Param('id') id: string) {
+    return `This action returns a #${id} cat`;
+  }
+
+  @Put(':id')
+  update(@Param('id') id: string, @Body() updateCatDto: UpdateCatDto) {
+    return `This action updates a #${id} cat`;
+  }
+
+  @Delete(':id')
+  remove(@Param('id') id: string) {
+    return `This action removes a #${id} cat`;
+  }
+}

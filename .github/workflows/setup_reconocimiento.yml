@@ -1,0 +1,75 @@
+# **IMPORTANTE** Solamente se debe ejecutar esta acción una vez al inicio de la semana 4.
+# Si se ejecuta nuevamente, se eliminarán todos los archivos y configuraciones de los demás
+# frameworks, lo que podría causar problemas si se han realizado cambios o configuraciones
+# adicionales. Por lo tanto, se recomienda tener cuidado al ejecutar esta acción y asegurarse
+# de que es realmente necesario limpiar el repositorio.
+
+# **NOTA** Esta acción no se encarga de instalar los frameworks, sino de configurar el
+# repositorio para que esté listo para su uso. La instalación de los frameworks debe realizarse
+# manualmente por el usuario, siguiendo las instrucciones de los archivos README.
+
+# **NOTA** Se espera que el usuario tenga un conocimiento básico de los frameworks Se recomienda
+# realizar los tutoriales del curso y revisar la documentación oficial de cada framework para
+# obtener más información sobre su instalación y configuración.
+
+name: Setup Herramientas Reconocimiento
+permissions: write-all
+
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "lts/iron"
+
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ github.repository }}
+          path: target-repo
+
+      - name: Checkout Monkey Repo
+        uses: actions/checkout@v4
+        with:
+          repository: Uniandes-MISW4103/proyecto-monkey-base
+          path: monkey-repo
+
+      - name: Checkout Ripper Repo
+        uses: actions/checkout@v4
+        with:
+          repository: Uniandes-MISW4103/proyecto-ripper-base
+          path: ripper-repo
+
+      - name: Copy Base Contents
+        run: |
+          echo "Copying files from monkey-repo and ripper-repo to target-repo"
+          rsync -a --exclude='.git' --exclude='package-lock.json' monkey-repo/ target-repo/reconocimiento/misw-4103-monkey/
+          rsync -a --exclude='.git' --exclude='package-lock.json' ripper-repo/ target-repo/reconocimiento/misw-4103-ripper/
+          echo "Files copied successfully"
+
+      - name: Set Framework Scripts
+        run: |
+          echo "Setting up framework scripts for monkey and ripper to main package.json"
+          cd target-repo
+          npm pkg set scripts.monkey:install="npm install -w misw-4103-monkey"
+          npm pkg set scripts.mocnkey:prepare="npm run prepare -w misw-4103-monkey"
+          npm pkg set scripts.monkey:test="npm run test -w misw-4103-monkey"
+          npm pkg set scripts.monkey:ui="npm run test:ui -w misw-4103-monkey"
+          npm pkg set scripts.ripper:install="npm install -w misw-4103-ripper"
+          npm pkg set scripts.mocnkey:prepare="npm run prepare -w misw-4103-ripper"
+          npm pkg set scripts.ripper:test="npm run test -w misw-4103-ripper"
+          npm pkg set scripts.ripper:ui="npm run test:ui -w misw-4103-ripper"
+
+      - name: Commit Changes to Target
+        run: |
+          cd target-repo; 
+          git config user.name "Equipo Docente MISW4103";
+          git config user.email "equipo-docente-misw4103@uniandes.edu.co";
+          git add .;
+          git commit -m "chore: initial setup for monkey and ripper";
+          git push origin HEAD;
