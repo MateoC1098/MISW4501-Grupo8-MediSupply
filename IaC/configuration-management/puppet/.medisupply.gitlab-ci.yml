@@ -15,7 +15,7 @@ preview-puppet-medisupply:
   variables:
     PORT: 22
     HOST: $MEDISUPPLY_GATEWAY_HOST
-    KEY_TO_USE: "key_medisupply_ecdsa"
+    KEY_TO_USE: "medisupply-key-ecdsa"
     DESIRED_PUPPET_MANIFEST: "site.pp"
   script:
     - !reference [.template-puppet-setup, script]
@@ -29,7 +29,7 @@ exec-puppet-medisupply:
   variables:
     PORT: 22
     HOST: $MEDISUPPLY_GATEWAY_HOST
-    KEY_TO_USE: "key_medisupply_ecdsa"
+    KEY_TO_USE: "medisupply-key-ecdsa"
     DESIRED_PUPPET_MANIFEST: "site.pp"
   script:
     - !reference [.template-puppet-setup, script]

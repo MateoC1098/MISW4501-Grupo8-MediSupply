@@ -12,11 +12,11 @@ variable "credentials_file" {
   sensitive   = true
 }
 
-# ssh-keygen -t ecdsa -b 521 -f key_medisupply_ecdsa -C "medisupply ssh key"
+# ssh-keygen -t ecdsa -b 521 -f medisupply-key-ecdsa -C "Llave MediSupply"
 variable "gce_ssh_pub_key_file" {
   type        = string
   description = "Llave publica que se instala en las maquinas de la flota para poder ingresarlas por ssh."
-  default     = "../../../../.secure_files/key_medisupply_ecdsa.pub"
+  default     = "../../../../.secure_files/medisupply-key-ecdsa.pub"
   sensitive   = true
 }
 

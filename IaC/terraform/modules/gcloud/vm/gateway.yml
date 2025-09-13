@@ -21,39 +21,12 @@ users:
     sudo: ALL=(ALL) NOPASSWD:ALL
     shell: /bin/bash
     ssh_authorized_keys:
-      - ecdsa-sha2-nistp521 AAAAE2VjZHNhLXNoYTItbmlzdHA1MjEAAAAIbmlzdHA1MjEAAACFBAD/hRaUfoIP9U93LyCCP5Fueu/G455mIXwvOcotuTjQo8YZ7hAC8Jo4NoapOBRcf1QY0prOjcebTlesg3dtlo6RRwFXuT8pTOqn6QVLqCe1Z0z8MMrdz/M/J3Lp1gWmcgivtvq7NPnl1oNXdBUIRudy7AehWmC36v8+6TaRww7mGUWZpA== juanmanuel@napoleon
-  - name: gateway
-    gecos: DB & Cache Gateway User
-    groups: docker
-    shell: /bin/bash
-    lock_passwd: true
-    ssh_authorized_keys:
-      - ecdsa-sha2-nistp521 AAAAE2VjZHNhLXNoYTItbmlzdHA1MjEAAAAIbmlzdHA1MjEAAACFBAD/hRaUfoIP9U93LyCCP5Fueu/G455mIXwvOcotuTjQo8YZ7hAC8Jo4NoapOBRcf1QY0prOjcebTlesg3dtlo6RRwFXuT8pTOqn6QVLqCe1Z0z8MMrdz/M/J3Lp1gWmcgivtvq7NPnl1oNXdBUIRudy7AehWmC36v8+6TaRww7mGUWZpA== juanmanuel@napoleon
+      - ecdsa-sha2-nistp521 AAAAE2VjZHNhLXNoYTItbmlzdHA1MjEAAAAIbmlzdHA1MjEAAACFBAHW1wHywROx7wRU4yGiptulKbsas7swiPfCl+lk7vpPLZO1KW2hCGmgU/ASS8YzgZCUHEqj6LpBS+d+m/WXrJxZ0gEMQX1JIXhoPY2dWUx2AN+nVHyx4I7zP9e7IG3PY5x4o8x2ZuPz+PEduCOFerDT56cI2XtoEg5kuSb1EAg/DP5jqg== Llave MediSupply
 
 timezone: America/Bogota
 
 keyboard:
   layout: latam
-
-# Module frequency: once-per-instance (Perfecto pues certbot despues modificara el archivo)
-write_files:
-  - path: /etc/nginx/sites-available/default
-    content: |
-      server {
-        listen 80 default_server;
-        listen [::]:80 default_server;
-        server_name _;
-        location / {
-          auth_basic "Restricted Content"; # Mejor no usarlo por ahora.
-          auth_basic_user_file /etc/nginx/.htpasswd;
-          proxy_pass http://localhost:8080;
-          proxy_set_header Host $host;
-          proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        }
-      }
-    owner: 'root:root'
-    permissions: '0640'
-    defer: false
 
 # Unofficial distributions of Docker packages in APT; 
 # No es perfecto, pero es una forma de instalar Docker en Ubuntu.
@@ -71,16 +44,10 @@ runcmd:
   # 1. Levantar el servicio de Docker y la aplicacion de Gateway
   - [ systemctl, start, docker ]
   - [ systemctl, enable, docker ]
-  - [ wget, "https://raw.githubusercontent.com/aanieves/Ghost/main/docker/docker-compose.yml", -O, /home/gateway/docker-compose.yml ]
-  - [ chown, gateway:docker, /home/gateway/docker-compose.yml ]
-  - [ su, gateway, -c, "cd /home/gateway && docker compose up -d --build" ]
-  # 2. Configurar el servidor web
-  - [ systemctl, start, nginx ]
-  - [ systemctl, enable, nginx ]
-  # 2.a. Crear el auth_basic_user_file que se usa en el archivo de configuracion de Nginx
-  - [ htpasswd, -c, -b, /etc/nginx/.htpasswd, gopass, passwordqueluegosecambia ]
-  - [ systemctl, restart, nginx ]
-  # 3. Configurar el firewall
+  - [ wget, "https://raw.githubusercontent.com/MateoC1098/MISW4501-Grupo8-MediSupply/main/IaC/docker/docker-compose.yml", -O, /home/ubuntu/docker-compose.yml ]
+  - [ chown, ubuntu:docker, /home/ubuntu/docker-compose.yml ]
+  - [ su, ubuntu, -c, "cd /home/ubuntu && docker compose up -d --build" ]
+  # 2. Configurar el firewall
   - ufw reset 
   - ufw default deny incoming
   - ufw default allow outgoing
