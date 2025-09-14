@@ -33,7 +33,7 @@ jobs:
           platforms: linux/amd64,linux/arm64
           push: true
           tags: |
-            ghcr.io/mateoC1098/misw4501-grupo8-medisupply/autenticacion:latest
+            ghcr.io/mateoc1098/misw4501-grupo8-medisupply/autenticacion:latest
 
   docker-gestion-perfiles:
     runs-on: ubuntu-latest
@@ -62,4 +62,4 @@ jobs:
           platforms: linux/amd64,linux/arm64
           push: true
           tags: |
-            ghcr.io/mateoC1098/misw4501-grupo8-medisupply/gestion-perfiles:latest
+            ghcr.io/mateoc1098/misw4501-grupo8-medisupply/gestion-perfiles:latest
