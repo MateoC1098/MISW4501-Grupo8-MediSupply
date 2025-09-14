@@ -13,10 +13,8 @@ stages:
 preview-puppet-medisupply:
   stage: preview
   variables:
-    PORT: 22
     HOST: $MEDISUPPLY_GATEWAY_HOST
     KEY_TO_USE: "medisupply-key-ecdsa"
-    DESIRED_PUPPET_MANIFEST: "site.pp"
   script:
     - !reference [.template-puppet-setup, script]
     - ssh -p "${PORT}" ubuntu@$HOST "(echo 'N'; echo 'N'; echo 'Y'; echo 'N';) | sudo ./main_work-machine.sh"
@@ -27,10 +25,8 @@ preview-puppet-medisupply:
 exec-puppet-medisupply:
   stage: deploy
   variables:
-    PORT: 22
     HOST: $MEDISUPPLY_GATEWAY_HOST
     KEY_TO_USE: "medisupply-key-ecdsa"
-    DESIRED_PUPPET_MANIFEST: "site.pp"
   script:
     - !reference [.template-puppet-setup, script]
     - ssh -p "${PORT}" ubuntu@$HOST "(echo 'N'; echo 'N'; echo 'N'; echo 'Y';) | sudo ./main_work-machine.sh"

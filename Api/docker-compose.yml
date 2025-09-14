@@ -1,0 +1,78 @@
+name: MediSupply-Api
+
+services:
+  autenticacion:
+    container_name: autenticacion
+    build:
+      context: ./autenticacion
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_USER=user
+      - DB_PASSWORD=password
+      - DB_NAME=autenticacion_db
+    depends_on:
+      - autenticacion_db
+    networks:
+      - auth_net
+  autenticacion_db:
+    container_name: autenticacion_db
+    image: postgres:latest
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: autenticacion_db
+    volumes:
+      - db_data_autenticacion:/var/lib/postgresql/data
+    networks:
+      - auth_net
+
+  gestion_perfiles:
+    container_name: gestion_perfiles
+    build:
+      context: ./gestion-perfiles
+      dockerfile: Dockerfile
+    ports:
+      - "4000:4000"
+    environment:
+      - NODE_ENV=production
+      - PORT=4000
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_USER=user
+      - DB_PASSWORD=password
+      - DB_NAME=gestion_perfiles_db
+    depends_on:
+      - gestion_perfiles_db
+    networks:
+      - profiles_net
+  gestion_perfiles_db:
+    container_name: gestion_perfiles_db
+    image: postgres:latest
+    ports:
+      - "5433:5432"
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: gestion_perfiles_db
+    volumes:
+      - db_data_perfiles:/var/lib/postgresql/data
+    networks:
+      - profiles_net
+
+volumes:
+  db_data_autenticacion:
+  db_data_perfiles:
+
+networks:
+  auth_net:
+    driver: bridge
+  profiles_net:
+    driver: bridge
