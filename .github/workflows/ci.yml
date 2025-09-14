@@ -9,6 +9,11 @@ jobs:
   docker-autenticacion:
     runs-on: ubuntu-latest
     steps:
+      - 
+        name: Set lowercases
+        run: |
+          echo "repository_owner_lowercase=${github.repository_owner,,}" >> $GITHUB_ENV
+          echo "repository_lowercase=${github.repository,,}"" >> $GITHUB_ENV
       -
         name: Checkout
         uses: actions/checkout@v3
@@ -23,7 +28,7 @@ jobs:
         uses: docker/login-action@v2
         with:
           registry: ghcr.io
-          username: ${{ github.repository_owner,, }}
+          username: ${{ env.repository_owner_lowercase }}
           password: ${{ secrets.GITHUB_TOKEN }}
       -
         name: Build and push
@@ -33,11 +38,16 @@ jobs:
           platforms: linux/amd64,linux/arm64
           push: true
           tags: |
-            ghcr.io/${{ github.repository,, }}/autenticacion:latest
+            ghcr.io/${{ env.repository_lowercase  }}/autenticacion:latest
 
   docker-gestion-perfiles:
     runs-on: ubuntu-latest
     steps:
+      - 
+        name: Set lowercases
+        run: |
+          echo "repository_owner_lowercase=${github.repository_owner,,}" >> $GITHUB_ENV
+          echo "repository_lowercase=${github.repository,,}"" >> $GITHUB_ENV
       -
         name: Checkout
         uses: actions/checkout@v3
@@ -52,7 +62,7 @@ jobs:
         uses: docker/login-action@v2
         with:
           registry: ghcr.io
-          username: ${{ github.repository_owner,, }}
+          username: ${{ env.repository_owner_lowercase }}
           password: ${{ secrets.GITHUB_TOKEN }}
       -
         name: Build and push
@@ -62,4 +72,4 @@ jobs:
           platforms: linux/amd64,linux/arm64
           push: true
           tags: |
-            ghcr.io/${{ github.repository,, }}/gestion-perfiles:latest
+            ghcr.io/${{ env.repository_lowercase }}/gestion-perfiles:latest
