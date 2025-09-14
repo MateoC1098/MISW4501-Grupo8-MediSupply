@@ -116,7 +116,6 @@ resource "google_pubsub_topic" "pubsub_topic" {
   }
 }
 
-/*
 resource "google_service_networking_connection" "networking_connection" {
   network                 = module.network.network_id
   service                 = "servicenetworking.googleapis.com"
@@ -172,9 +171,7 @@ resource "google_vpc_access_connector" "vpc_access_connector" {
   region        = "us-east1"
   depends_on    = [module.network]
 }
-*/
 
-/*
 resource "google_cloud_run_v2_service" "cloud_run_v2_service_gestion_de_perfiles" {
   name                = "gestion-de-perfiles"
   location            = "us-east1"
@@ -193,7 +190,7 @@ resource "google_cloud_run_v2_service" "cloud_run_v2_service_gestion_de_perfiles
     }
 
     containers {
-      image = "us-docker.pkg.dev/cloudrun/gestion_de_perfiles:latest"
+      image = "ghcr.io/mateoc1098/misw4501-grupo8-medisupply/gestion-perfiles:latest"
       startup_probe {
         initial_delay_seconds = 0
         timeout_seconds       = 1
@@ -218,7 +215,7 @@ resource "google_cloud_run_v2_service" "cloud_run_v2_service_gestion_de_perfiles
       }
       env {
         name  = "GOOGLE_CLOUD_PROJECT"
-        value = "${var.project}"
+        value = var.project
       }
       env {
         name  = "GOOGLE_APPLICATION_CREDENTIALS"
@@ -259,7 +256,7 @@ resource "google_cloud_run_v2_service" "cloud_run_v2_service_autenticacion" {
     }
 
     containers {
-      image = "us-docker.pkg.dev/cloudrun/autenticacion:latest"
+      image = "ghcr.io/mateoc1098/misw4501-grupo8-medisupply/autenticacion:latest"
       startup_probe {
         initial_delay_seconds = 0
         timeout_seconds       = 1
@@ -284,7 +281,7 @@ resource "google_cloud_run_v2_service" "cloud_run_v2_service_autenticacion" {
       }
       env {
         name  = "GOOGLE_CLOUD_PROJECT"
-        value = "${var.project}"
+        value = var.project
       }
       env {
         name  = "GOOGLE_APPLICATION_CREDENTIALS"
@@ -306,7 +303,6 @@ resource "google_cloud_run_v2_service" "cloud_run_v2_service_autenticacion" {
   }
   depends_on = [module.database, google_service_networking_connection.networking_connection]
 }
-*/
 
 # resource "google_api_gateway_api" "api_gateway_api" {
 #   provider = google-beta
