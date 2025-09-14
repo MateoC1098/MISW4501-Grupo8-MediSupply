@@ -19,7 +19,7 @@ preview-puppet-medisupply:
     DESIRED_PUPPET_MANIFEST: "site.pp"
   script:
     - !reference [.template-puppet-setup, script]
-    - ssh -p "${PORT}" ubuntu@$HOST "(echo 'Y'; echo 'Y'; echo 'Y'; echo 'N';) | sudo ./main_work-machine.sh"
+    - ssh -p "${PORT}" ubuntu@$HOST "(echo 'N'; echo 'N'; echo 'Y'; echo 'N';) | sudo ./main_work-machine.sh"
   resource_group: puppet-medisupply
   rules:
     - if: $CI_COMMIT_REF_PROTECTED == "true"

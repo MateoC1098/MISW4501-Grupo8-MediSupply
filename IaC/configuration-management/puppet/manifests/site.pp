@@ -1,16 +1,4 @@
 node default {
-  exec { 'timezone-Bogota':
-    path    => ['/usr/bin', '/usr/sbin', '/bin'],
-    unless  => "timedatectl status | grep 'Time zone:.*America/Bogota.*'",
-    command => 'timedatectl set-timezone America/Bogota',
-  }
-
-  exec { 'key-map-latam-layout':
-    path    => ['/usr/bin', '/usr/sbin', '/bin'],
-    unless  => "localectl status | grep 'X11.*latam'",
-    command => 'localectl set-x11-keymap latam',
-  }
-
   class { 'tools': arenero => false }
 
   package { ['curl', 'htop', 'openssh-server', 'postgresql-client', 'tcpdump']:

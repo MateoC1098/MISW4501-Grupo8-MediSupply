@@ -18,7 +18,6 @@ before_script:
   - echo Y | gcloud auth login --cred-file=.secure_files/MEDISUPPLY_TERRAFORM_ACCOUNT_KEY.json
   - export GOOGLE_PROJECT=$(gcloud config get-value project)
   - cd IaC/terraform/enviroments/gcloud
-  - alias convert_report="jq -r '([.resource_changes[].change.actions?]|flatten)|{\"create\":(map(select(.==\"create\"))|length),\"update\":(map(select(.==\"update\"))|length),\"delete\":(map(select(.==\"delete\"))|length)}'"
   - terraform --version
   - terraform init -upgrade -backend-config="address=${GITLAB_TF_ADDRESS}" -backend-config="lock_address=${GITLAB_TF_ADDRESS}/lock" -backend-config="unlock_address=${GITLAB_TF_ADDRESS}/lock" -backend-config="username=gitlab-ci-token" -backend-config="password=${CI_JOB_TOKEN}" -backend-config="lock_method=POST" -backend-config="unlock_method=DELETE" -backend-config="retry_wait_min=5"
 

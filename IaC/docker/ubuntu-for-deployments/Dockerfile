@@ -46,7 +46,7 @@ RUN useradd -ms /bin/bash devops
 USER devops
 WORKDIR /home/devops
 
-ENV SSH_KNOWN_HOST_GATEWAY 35.231.39.19
+ENV SSH_KNOWN_HOST_GATEWAY gateway.medisupply.site
 
 ARG PORT
 ENV SSH_PORT=${PORT:-22}

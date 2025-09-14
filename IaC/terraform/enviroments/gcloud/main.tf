@@ -12,18 +12,18 @@ module "public_ips" {
 }
 
 locals {
-  network_name    = "medisupply-network"
-  subnetwork_name = "medisupply-subnetwork"
+  network_name    = "${var.project}-network"
+  subnetwork_name = "${var.project}-subnetwork"
   ip_cidr_range_1 = "10.141.0.0/28" # Number of Usable Hosts:	28
   ip_cidr_range_2 = "10.141.1.0/28" # Number of Usable Hosts:	28
-  vms_account_id  = "vms-account@medisupply.iam.gserviceaccount.com"
+  vms_account_id  = "vms-account@${var.project}.iam.gserviceaccount.com"
   machines = [
     {
       name : "developers-db-gateway",
       region : var.region,
       zone : "us-east1-b",
       machine_type : "e2-micro", # [1 - 2(30s)]vCPUs [1] GB Memory; $6.11 USD Month
-      tags : ["firewall-medisupply", "ssh", "http-server", "https-server"],
+      tags : ["firewall-${var.project}", "ssh", "http-server", "https-server"],
       size : 10, # GB; $1 USD Month
       type : "pd-ssd",
       network_ip : "10.141.0.2",
@@ -57,7 +57,7 @@ module "network_firewall" {
   network_id                   = module.network.network_id
   ip_cidr_range_1              = local.ip_cidr_range_1
   ip_cidr_range_2              = local.ip_cidr_range_2
-  target_tag                   = "firewall-medisupply"
+  target_tag                   = "firewall-${var.project}"
   ssh_custom_port              = ""
   authorized_ingress_cidr_IPv4 = ["0.0.0.0/0"]
   authorized_ingress_cidr_IPv6 = ["::/0"]
@@ -70,8 +70,8 @@ module "registry_docker" {
   source        = "../../modules/gcloud/registry-docker"
   project       = var.project
   location      = var.region
-  repository_id = "medisupply-container-registry"
-  description   = "Repositorio de contenedores Docker para la aplicacion MediSupply"
+  repository_id = "${var.project}-container-registry"
+  description   = "Repositorio de contenedores Docker para la aplicacion ${var.project}"
   env           = "prod"
 }
 
@@ -126,7 +126,7 @@ resource "google_service_networking_connection" "networking_connection" {
 
 # db-f1-micro: Maximum Storage Capacity 3062 (GB), Shared Virtual CPUs, 0.6 RAM (GB)
 module "database" {
-  name                   = "medisupplydb"
+  name                   = "${var.project}db"
   database_version       = "POSTGRES_17"
   source                 = "../../modules/gcloud/database"
   region                 = var.region
@@ -135,7 +135,7 @@ module "database" {
   private_network        = module.network.network_id
   reserved_peering_range = module.network.private_ip_address[0].name
   authorizednets = [
-    { name : "medisupply-peering", cidr : module.public_ips.ip_addresses[0] }
+    { name : "${var.project}-peering", cidr : module.public_ips.ip_addresses[0] }
   ]
   built_in_admin_user     = "dbadmin"
   built_in_admin_password = var.dbadmin_password
@@ -218,7 +218,7 @@ resource "google_cloud_run_v2_service" "cloud_run_v2_service_gestion_de_perfiles
       }
       env {
         name  = "GOOGLE_CLOUD_PROJECT"
-        value = "medisupply"
+        value = "${var.project}"
       }
       env {
         name  = "GOOGLE_APPLICATION_CREDENTIALS"
@@ -284,7 +284,7 @@ resource "google_cloud_run_v2_service" "cloud_run_v2_service_autenticacion" {
       }
       env {
         name  = "GOOGLE_CLOUD_PROJECT"
-        value = "medisupply"
+        value = "${var.project}"
       }
       env {
         name  = "GOOGLE_APPLICATION_CREDENTIALS"
@@ -310,13 +310,13 @@ resource "google_cloud_run_v2_service" "cloud_run_v2_service_autenticacion" {
 
 # resource "google_api_gateway_api" "api_gateway_api" {
 #   provider = google-beta
-#   api_id   = "medisupply-api"
+#   api_id   = "${var.project}-api"
 # }
 
 # resource "google_api_gateway_api_config" "api_gateway_api_config" {
 #   provider      = google-beta
 #   api           = google_api_gateway_api.api_gateway_api.api_id
-#   api_config_id = "medisupply-config"
+#   api_config_id = "${var.project}-config"
 # 
 #   openapi_documents {
 #     document {
