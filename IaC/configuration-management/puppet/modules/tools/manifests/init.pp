@@ -11,7 +11,7 @@ class tools (Boolean $arenero=true, Boolean $localees=true) {
   $packages_common = [
     'coreutils','git', 'curl', 'htop', 'unzip', 'tree', 'plocate', 'openssh-server',
     'vim', 'neovim', 'vim-puppet',
-    'whois', 'net-tools', 'traceroute', 'nmap',
+    'whois', 'net-tools', 'tcpdump', 'traceroute', 'nmap',
     'nginx', 'python3', 'certbot', 'python3-certbot-nginx',
     'nodejs', 'postgresql-client', 'stress',
     'lsb-release', 'gpg',

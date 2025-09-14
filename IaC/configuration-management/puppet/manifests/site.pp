@@ -1,10 +1,6 @@
 node default {
   class { 'tools': arenero => false }
 
-  package { ['curl', 'htop', 'openssh-server', 'postgresql-client', 'tcpdump']:
-    ensure => latest,
-  }
-
   class { 'customufw':
     sshport             => '22',
     authorizednettworks => [],
