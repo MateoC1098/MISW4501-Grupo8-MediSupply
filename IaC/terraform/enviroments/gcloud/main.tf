@@ -144,6 +144,7 @@ module "database" {
   depends_on              = [module.public_ips, module.network, google_service_networking_connection.networking_connection]
 }
 
+/*
 resource "google_redis_instance" "redis_instance" {
   name               = "cache-inventario"
   display_name       = "Cache Inventario"
@@ -166,11 +167,12 @@ resource "google_vpc_access_connector" "vpc_access_connector" {
     name = module.network.subnetwork_cloud_run_name
   }
   machine_type  = "e2-micro"
-  min_instances = 1
+  min_instances = 2
   max_instances = 3
   region        = "us-east1"
   depends_on    = [module.network]
 }
+*/
 
 resource "google_cloud_run_v2_service" "cloud_run_v2_service_gestion_de_perfiles" {
   name                = "gestion-de-perfiles"
@@ -179,16 +181,9 @@ resource "google_cloud_run_v2_service" "cloud_run_v2_service_gestion_de_perfiles
   ingress             = "INGRESS_TRAFFIC_ALL"
 
   scaling {
-    max_instance_count = 100
+    max_instance_count = 10
   }
   template {
-    volumes {
-      name = "cloudsql"
-      cloud_sql_instance {
-        instances = [module.database.sql_connection_name]
-      }
-    }
-
     containers {
       image = "ghcr.io/mateoc1098/misw4501-grupo8-medisupply/gestion-perfiles:latest"
       startup_probe {
@@ -197,7 +192,7 @@ resource "google_cloud_run_v2_service" "cloud_run_v2_service_gestion_de_perfiles
         period_seconds        = 3
         failure_threshold     = 1
         tcp_socket {
-          port = 8080
+          port = 3000
         }
       }
       liveness_probe {
@@ -221,21 +216,13 @@ resource "google_cloud_run_v2_service" "cloud_run_v2_service_gestion_de_perfiles
         name  = "GOOGLE_APPLICATION_CREDENTIALS"
         value = "../MEDISUPPLY_APPLICATION_ACCOUNT_KEY.json"
       }
-      volume_mounts {
-        name       = "cloudsql"
-        mount_path = "/cloudsql"
-      }
     }
     # node_selector {
     #   accelerator = "nvidia-l4"
     # }
     # gpu_zonal_redundancy_disabled = true
-    vpc_access {
-      connector = google_service_networking_connection.networking_connection.id
-      egress    = "ALL_TRAFFIC"
-    }
   }
-  depends_on = [module.database, google_service_networking_connection.networking_connection]
+  depends_on = [module.database]
 }
 
 resource "google_cloud_run_v2_service" "cloud_run_v2_service_autenticacion" {
@@ -245,16 +232,9 @@ resource "google_cloud_run_v2_service" "cloud_run_v2_service_autenticacion" {
   ingress             = "INGRESS_TRAFFIC_ALL"
 
   scaling {
-    max_instance_count = 100
+    max_instance_count = 10
   }
   template {
-    volumes {
-      name = "cloudsql"
-      cloud_sql_instance {
-        instances = [module.database.sql_connection_name]
-      }
-    }
-
     containers {
       image = "ghcr.io/mateoc1098/misw4501-grupo8-medisupply/autenticacion:latest"
       startup_probe {
@@ -263,7 +243,7 @@ resource "google_cloud_run_v2_service" "cloud_run_v2_service_autenticacion" {
         period_seconds        = 3
         failure_threshold     = 1
         tcp_socket {
-          port = 8080
+          port = 4000
         }
       }
       liveness_probe {
@@ -287,21 +267,13 @@ resource "google_cloud_run_v2_service" "cloud_run_v2_service_autenticacion" {
         name  = "GOOGLE_APPLICATION_CREDENTIALS"
         value = "../MEDISUPPLY_APPLICATION_ACCOUNT_KEY.json"
       }
-      volume_mounts {
-        name       = "cloudsql"
-        mount_path = "/cloudsql"
-      }
     }
     # node_selector {
     #   accelerator = "nvidia-l4"
     # }
     # gpu_zonal_redundancy_disabled = true
-    vpc_access {
-      connector = google_service_networking_connection.networking_connection.id
-      egress    = "ALL_TRAFFIC"
-    }
   }
-  depends_on = [module.database, google_service_networking_connection.networking_connection]
+  depends_on = [module.database]
 }
 
 # resource "google_api_gateway_api" "api_gateway_api" {
