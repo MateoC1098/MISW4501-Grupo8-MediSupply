@@ -11,6 +11,5 @@
   "[terraform-vars]": {
     "editor.defaultFormatter": "hashicorp.terraform"
   },
-  "workbench.iconTheme": "material-icon-theme",
-  "workbench.colorTheme": "GitHub Dark Default"
+  "workbench.iconTheme": "material-icon-theme"
 }

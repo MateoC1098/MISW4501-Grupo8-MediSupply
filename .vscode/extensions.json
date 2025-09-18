@@ -2,7 +2,6 @@
   "recommendations": [
     "eamodio.gitlens",
     "esbenp.prettier-vscode",
-    "github.github-vscode-theme",
     "gitlab.gitlab-workflow",
     "gruntfuggly.todo-tree",
     "hashicorp.terraform",
