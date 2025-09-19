@@ -1,4 +1,4 @@
-import { BaseProduct } from "./base-product.entity";
+import { BaseProduct } from './base-product.entity';
 
 export interface Consumable extends BaseProduct {
   brand?: string;

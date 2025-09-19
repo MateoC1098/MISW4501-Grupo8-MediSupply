@@ -13,10 +13,10 @@ export class ProductsService {
     @Inject(CACHE_MANAGER) private cache: Cache,
     @Inject('IProductRepository')
     private productRepository: IProductRepository,
-    @Inject('KNEX_CONNECTION') private readonly knex: Knex
+    @Inject('KNEX_CONNECTION') private readonly knex: Knex,
   ) {}
 
-  async getAllProductsUsingCache(limit:number): Promise<BaseProduct[]> {
+  async getAllProductsUsingCache(limit: number): Promise<BaseProduct[]> {
     const cacheKey = `products:all:${limit}`;
     const cached = await this.cache.get<BaseProduct[]>(cacheKey);
 
@@ -28,14 +28,13 @@ export class ProductsService {
     console.log('💾 getAllProducts → from DB');
     const products = await this.productRepository.findMany(limit);
 
-    await (this.cache as any).set(cacheKey, products, { ttl: 60*5 }); // cache 5 min
+    await (this.cache as any).set(cacheKey, products, { ttl: 60 * 5 }); // cache 5 min
     return products;
   }
 
-  async getAllProductsWithOutCache(limit:number): Promise<BaseProduct[]> {
+  async getAllProductsWithOutCache(limit: number): Promise<BaseProduct[]> {
     return this.productRepository.findMany(limit);
   }
-
 
   // ...existing code...
   async testCache() {
@@ -57,5 +56,5 @@ export class ProductsService {
       return null;
     }
   }
-// ...existing code...
+  // ...existing code...
 }

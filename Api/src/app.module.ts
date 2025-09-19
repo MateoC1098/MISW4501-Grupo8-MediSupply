@@ -7,7 +7,6 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { createKeyv } from '@keyv/redis';
 import { CacheModule as NestCacheModule } from '@nestjs/cache-manager';
 
-
 @Module({
   imports: [
     DatabaseModule,
@@ -20,7 +19,9 @@ import { CacheModule as NestCacheModule } from '@nestjs/cache-manager';
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: async (config: ConfigService) => ({
-        store: createKeyv(`redis://${config.get<string>('REDIS_HOST') || 'localhost'}:${config.get<number>('REDIS_PORT') || 6379}`),
+        store: createKeyv(
+          `redis://${config.get<string>('REDIS_HOST') || 'localhost'}:${config.get<number>('REDIS_PORT') || 6379}`,
+        ),
         ttl: config.get<number>('CACHE_TTL') || 600000, // TTL en milisegundos
       }),
     }),

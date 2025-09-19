@@ -19,10 +19,8 @@ const dbProvider = {
   },
 };
 
-
 @Global()
-@Module(
-    {
+@Module({
   providers: [dbProvider],
   exports: ['KNEX_CONNECTION'],
 })
