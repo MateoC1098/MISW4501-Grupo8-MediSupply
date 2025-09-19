@@ -1,0 +1,216 @@
+alias grep='grep --color'
+alias mv='mv -i'
+alias rm='rm -i'
+alias ll='ls -alF'
+alias la='ls -A'
+alias l='ls -CF'
+HISTCONTROL=ignorespace
+
+#COLORS
+RED="$(tput setaf 1)"
+GREEN="$(tput setaf 2)"
+YELLOW="$(tput setaf 3)"
+BLUE="$(tput setaf 4)"
+PURPLE="$(tput setaf 5)"
+CYAN="$(tput setaf 14)"
+WHITE="$(tput setaf 7)"
+BOLD="$(tput bold)"
+RESET="$(tput sgr0)"
+
+CDEF=" \033[0m"                                     # default color
+CCIN=" \033[0;36m"                                  # info color
+CGSC=" \033[0;32m"                                  # success color
+CRER=" \033[0;31m"                                  # error color
+CWAR=" \033[0;33m"                                  # waring color
+b_CDEF=" \033[1;37m"                                # bold default color
+b_CCIN=" \033[1;36m"                                # bold info color
+b_CGSC=" \033[1;32m"                                # bold success color
+b_CRER=" \033[1;31m"                                # bold error color
+b_CWAR=" \033[1;33m"                                # bold warning color
+
+BINARY_FILE_MATCHES_ES='Coincidencia en el fichero binario'
+BINARY_FILE_MATCHES_EN='Binary file matches'
+function lookf() {
+	grep -rni --exclude-dir={node_modules,.git,dist,build} "$@" ./ \
+		| grep -v "${BINARY_FILE_MATCHES_ES}" \
+		| grep -v "${BINARY_FILE_MATCHES_EN}" \
+		| sort -u \
+		| grep "$@"
+}
+
+function lookfn() {
+	grep -rli --exclude-dir={node_modules,.git,dist,build} "$@" ./ \
+		| grep -v "${BINARY_FILE_MATCHES}" \
+		| sort -u
+}
+
+function lookfna() {
+	grep -rli --exclude-dir={node_modules,.git,dist,build} "$@" "$(pwd -P)" \
+		| grep -v "${BINARY_FILE_MATCHES}" \
+		| sort -u
+}
+
+function lookn() {
+	find . \
+		-not -path "*/node_modules/*" \
+		-not -path "*/.git/*" \
+		-not -path "*/dist/*" \
+		-not -path "*/build/*" \
+		-type f | grep -i "$@"
+}
+
+function lookna() {
+	find "$(pwd -P)" \
+		-not -path "*/node_modules/*" \
+		-not -path "*/.git/*" \
+		-not -path "*/dist/*" \
+		-not -path "*/build/*" \
+		-type f | grep -i "$@"
+}
+
+function navigate() {
+	# navigate 'setLoading(true)\|setLoading(false)' '10,20'
+	(lookf "${1}" | sed -n "${2}p" | grep -i "$1") && lookf "$1" | wc -l | awk '{print "Apariciones del texto buscado: "$0}'
+}
+
+function prompt () {
+  case ${1} in
+    "-s"|"--success")
+      echo -e "${b_CGSC}${@/-s/}${CDEF}";;
+    "-e"|"--error")
+      echo -e "${b_CRER}${@/-e/}${CDEF}";;
+    "-w"|"--warning")
+      echo -e "${b_CWAR}${@/-w/}${CDEF}";;
+    "-i"|"--info")
+      echo -e "${b_CCIN}${@/-i/}${CDEF}";;
+    *)
+    echo -e "$@"
+    ;;
+  esac
+}
+
+ACCIO_FOLDER="${HOME}/accio-folder/"
+ACCIO_FILE="${HOME}/accio-file.txt"
+function accio() {
+	if [ -d ${ACCIO_FOLDER} ]; then
+		rm -rf ${ACCIO_FOLDER}
+		mkdir ${ACCIO_FOLDER}
+	else
+		mkdir ${ACCIO_FOLDER}
+	fi
+	> "${ACCIO_FILE}"
+
+	lookna $@ | \
+		tee "${ACCIO_FILE}" | \
+		gawk -v folder=${ACCIO_FOLDER} '{print "cp --backup=t \x27"$0"\x27 "folder}' | sh
+}
+
+
+function latest() {
+	find . \
+		-not -path "*/node_modules/*" \
+		-not -path "*/.git/*" \
+		-not -path "*/dist/*" \
+		-not -path "*/build/*" \
+		-mtime 0
+}
+
+function bigger() {
+	find . -printf '%s %p\n'| sort -nr | head -10
+}
+
+function prop() {
+    grep "^${1}=" ${HOME}/.workdir.gopass | cut -d'=' -f2
+}
+
+function workdir() {
+	touch "${HOME}/.workdir.gopass"
+	if [ ! -z "$1" ]; then
+		local work_dir=''
+		work_dir=${work_dir}$(prop "${1}")
+		cd ${work_dir}
+	else
+		work_dir=${work_dir}$(prop 'work_dir')
+		cd ${work_dir}
+	fi
+}
+
+function workdirs() {
+	touch "${HOME}/.workdir.gopass"
+	cat ${HOME}/.workdir.gopass
+}
+
+function setworkdir() {
+	touch "${HOME}/.workdir.gopass"
+	if [ ! -z "$1" ]; then
+		# Erase last entry of the parameter on the file
+		grep "${1}=" ${HOME}/.workdir.gopass 2>&1 >/dev/null && sed -i "/${1}=/d" ${HOME}/.workdir.gopass
+		echo "${1}=${PWD}" >> ${HOME}/.workdir.gopass
+	fi
+	# Erase again
+	grep "work_dir=" ${HOME}/.workdir.gopass 2>&1 >/dev/null && sed -i "/work_dir=/d" ${HOME}/.workdir.gopass
+	echo "work_dir=${PWD}" >> ${HOME}/.workdir.gopass
+}
+
+function gadog() {
+	git log --all --decorate --oneline --graph
+}
+
+function gdog() {
+	git log --decorate --oneline --graph 
+}
+
+function plot() {
+	sudo systemd-analyze plot > systemd-analyze-plot.svg
+}
+
+function exitstatus()
+{
+	local exitcode=$?
+	if [ ${exitcode} = "0" ]; then
+		echo ${BOLD}${GREEN}
+	else
+		echo ${BOLD}${RED}
+		printf '\a'
+	fi	
+	
+	printf '('${exitcode}')'
+	
+	if [ ${exitcode} = "0" ]; then
+		printf " <%= $icon %>"
+	else
+		printf " 🔥"
+	fi	
+}
+
+function thebranch() {
+	local branchname="$(git branch --show-current 2> /dev/null)"
+	if [[ ${branchname} != '' ]];  then
+		local description=$"$(git describe --tags --always)"
+		printf "\n${BOLD}${CYAN}Rama:${branchname}, Descripción: ${description}${RESET}"
+	fi
+}
+
+function theusers() {
+	who | awk '{print $1}' | sort | uniq -c | xargs |awk '{printf "%s ", $0}' 
+}
+
+function timer_start() {
+	timer=${timer:-$SECONDS}
+}
+
+function timer_stop() {
+	timer_show=$(($SECONDS - $timer))
+	unset timer
+}
+
+trap 'timer_start' DEBUG
+
+if [ "$PROMPT_COMMAND" == "" ]; then
+	PROMPT_COMMAND='timer_stop'
+else
+	PROMPT_COMMAND="$PROMPT_COMMAND; timer_stop"
+fi
+PS1='`exitstatus` [\A]${RESET}${BOLD}${YELLOW}[Duró: ${timer_show}s]${RESET}${BOLD}${BLUE}[\u@\h \w]${RESET}\n[$(ls -1 | wc -l | sed '"'s: ::g'"') elementos, $(ls -lah | grep -m 1 total | sed '"'s/total //'"'), Jobs:\j, Users: $(theusers)]$(thebranch)\n$'
+
+export PATH="$PATH:/home/<%= $user %>/.local/bin"

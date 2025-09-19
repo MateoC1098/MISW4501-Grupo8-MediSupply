@@ -1,0 +1,57 @@
+image: registry.gitlab.com/medisupply/infraestructura/terraform-and-gcloud:latest
+
+# Default output file for Terraform plan
+variables:
+  TF_IN_AUTOMATION: "true" # https://developer.hashicorp.com/terraform/cli/config/environment-variables#tf_in_automation
+  TF_VAR_dbadmin_password: $MEDISUPPLY_DBADMIN_PASSWORD
+  GITLAB_TF_ADDRESS: ${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/terraform/state/${CI_PROJECT_NAME}-medisupply
+
+cache:
+  key: ${CI_COMMIT_SHA}
+  paths:
+    - .terraform
+
+before_script:
+  - curl --silent "https://gitlab.com/gitlab-org/incubation-engineering/mobile-devops/download-secure-files/-/raw/main/installer" | bash
+  - echo Y | gcloud auth login --cred-file=.secure_files/MEDISUPPLY_TERRAFORM_ACCOUNT_KEY.json
+  - export GOOGLE_PROJECT=$(gcloud config get-value project)
+  - cd IaC/terraform/enviroments/gcloud
+  - terraform --version
+  - terraform init -upgrade -backend-config="address=${GITLAB_TF_ADDRESS}" -backend-config="lock_address=${GITLAB_TF_ADDRESS}/lock" -backend-config="unlock_address=${GITLAB_TF_ADDRESS}/lock" -backend-config="username=gitlab-ci-token" -backend-config="password=${CI_JOB_TOKEN}" -backend-config="lock_method=POST" -backend-config="unlock_method=DELETE" -backend-config="retry_wait_min=5"
+
+stages:
+  - plan
+  - apply
+
+plan:
+  stage: plan
+  script:
+    - terraform validate
+    - terraform fmt -check=true
+    - terraform plan
+  only:
+    - develop
+    - main
+  resource_group: production
+
+apply:
+  stage: apply
+  script:
+    - terraform apply -auto-approve
+  dependencies:
+    - plan
+  only:
+    - main
+  resource_group: production
+  when: manual
+
+destroy:
+  stage: apply
+  script:
+    - terraform destroy -auto-approve
+  dependencies:
+    - plan
+  only:
+    - main
+  resource_group: production
+  when: manual

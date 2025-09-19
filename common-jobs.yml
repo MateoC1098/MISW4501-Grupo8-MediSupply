@@ -1,0 +1,20 @@
+# https://docs.gitlab.com/ee/ci/yaml/yaml_optimization.html#reference-tags
+
+# Steps to send the puppet folder and the auxiliar scripts to the desired machine.
+# HOST: String - Example: $ALTAMIRA_CLOUD_ARENERO_HOST
+# KEY_TO_USE: String - Example: 'key_devops_ecdsa'
+.template-puppet-setup:
+  script:
+    - eval $(ssh-agent -s)
+    - curl --silent "https://gitlab.com/gitlab-org/incubation-engineering/mobile-devops/download-secure-files/-/raw/main/installer" | bash
+    - chmod 600 .secure_files/*
+    - ssh-add -v ".secure_files/${KEY_TO_USE}"
+    - find puppet/manifests/ -type f ! -name "site.pp" -delete
+    - find puppet/ -maxdepth 1 -type f -name "*.yml" -delete
+    - tar -czvf puppet.tar.gz puppet
+    - scp puppet/main_work-machine.sh ubuntu@$HOST:~/
+    - scp puppet.tar.gz ubuntu@$HOST:~/puppet.tar.gz
+    - ssh ubuntu@$HOST "tar -xzvf puppet.tar.gz"
+    - scp puppet/restringir-permisos.sh ubuntu@$HOST:~/puppet/restringir-permisos.sh
+    - ssh ubuntu@$HOST "chmod 700 main_work-machine.sh"
+    - ssh ubuntu@$HOST "chmod 700 puppet/restringir-permisos.sh && cd puppet && ./restringir-permisos.sh"
