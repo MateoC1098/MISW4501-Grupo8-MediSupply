@@ -1,12 +1,8 @@
-/*
-// Lo voy a dejar afuera para poder declarar que existe dependencia de la red.
-// De esa forma se establece un orden de eliminación que terraform puede seguir
 resource "google_service_networking_connection" "networking_connection" {
   network                 = var.private_network
   service                 = "servicenetworking.googleapis.com"
   reserved_peering_ranges = [var.reserved_peering_range]
 }
-*/
 
 resource "google_sql_database_instance" "database_instance" {
   name                = var.name

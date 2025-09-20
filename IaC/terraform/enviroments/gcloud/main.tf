@@ -116,13 +116,6 @@ resource "google_pubsub_topic" "pubsub_topic" {
   }
 }
 
-resource "google_service_networking_connection" "networking_connection" {
-  network                 = module.network.network_id
-  service                 = "servicenetworking.googleapis.com"
-  reserved_peering_ranges = [module.network.private_ip_address[0].name]
-  depends_on              = [module.network]
-}
-
 # db-f1-micro: Maximum Storage Capacity 3062 (GB), Shared Virtual CPUs, 0.6 RAM (GB)
 module "database" {
   name                   = "${var.project}db"
@@ -144,7 +137,6 @@ module "database" {
   depends_on              = [module.public_ips, module.network, google_service_networking_connection.networking_connection]
 }
 
-/*
 resource "google_vpc_access_connector" "vpc_access_connector" {
   name = "vpcaccessdb"
   subnet {
@@ -156,7 +148,8 @@ resource "google_vpc_access_connector" "vpc_access_connector" {
   region        = "us-east1"
   depends_on    = [module.network]
 }
-*/
+
+/*
 resource "google_cloud_run_v2_service" "cloud_run_v2_service_autenticacion" {
   name                = "autenticacion"
   location            = "us-east1"
@@ -208,23 +201,25 @@ resource "google_cloud_run_v2_service" "cloud_run_v2_service_autenticacion" {
   depends_on = [module.database]
 }
 
-# resource "google_api_gateway_api" "api_gateway_api" {
-#   provider = google-beta
-#   api_id   = "${var.project}-api"
-# }
 
-# resource "google_api_gateway_api_config" "api_gateway_api_config" {
-#   provider      = google-beta
-#   api           = google_api_gateway_api.api_gateway_api.api_id
-#   api_config_id = "${var.project}-config"
-# 
-#   openapi_documents {
-#     document {
-#       path     = "spec.yaml"
-#       contents = filebase64("openapi.yaml")
-#     }
-#   }
-#   lifecycle {
-#     create_before_destroy = true
-#   }
-# }
+resource "google_api_gateway_api" "api_gateway_api" {
+  provider = google-beta
+  api_id   = "${var.project}-api"
+}
+
+resource "google_api_gateway_api_config" "api_gateway_api_config" {
+  provider      = google-beta
+  api           = google_api_gateway_api.api_gateway_api.api_id
+  api_config_id = "${var.project}-config"
+
+  openapi_documents {
+    document {
+      path     = "spec.yaml"
+      contents = filebase64("openapi.yaml")
+    }
+  }
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+*/

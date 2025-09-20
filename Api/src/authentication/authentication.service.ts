@@ -3,49 +3,73 @@ import { UserDto } from './dtos/user.dto';
 import { WrongPasswordError } from './errors/wrong-password.error';
 import { UserRepository } from './repositories/user.repository';
 import { User } from './entities/user.entity';
+import { DisabledUserError } from './errors/disabled-user.error';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class AuthenticationService {
-  constructor(private readonly userRepository: UserRepository) {}
+  private readonly NUM_MAX_INTENTOS_FALLIDOS = 5;
+
+  constructor(
+    private readonly userRepository: UserRepository,
+    private jwtService: JwtService,
+  ) {}
 
   @HttpCode(200)
-  async login(userDto: UserDto): Promise<boolean> {
+  async login(userDto: UserDto): Promise<string> {
     await new Promise((resolve) => setTimeout(resolve, 1000));
     console.log('User login service:', userDto);
     const { email, password } = userDto;
 
-    console.log('💾 getAllUsers → from DB');
     const users: User[] = await this.userRepository.findByEmail(email);
-
     if (!Array.isArray(users) || users.length === 0)
-      throw new WrongPasswordError();
+      throw new WrongPasswordError(); // Usuario no encontrado, pero eso no se dice
 
-    const passwordSaletd = this.saltPassword(password);
-    // Aquí deberías implementar la lógica real de autenticación
-    // Por ejemplo, verificar el email y la contraseña contra una base de datos
-    console.log('Retrieved users:', users);
-    console.log(
-      'Comparing passwords:',
-      passwordSaletd,
-      'with',
-      users[0].password,
-    );
+    console.log('Users:', users);
+    const passwordSaletd = this.saltPassword(password, `${users[0].id}`);
+    // Verificar si el usuario está habilitado
+    if (!users[0].habilitado) throw new DisabledUserError();
+    else {
+      console.log('User is enabled');
+      if (
+        passwordSaletd !==
+        this.saltPassword(users[0].password, `${users[0].id}`)
+      ) {
+        // Password incorrecto
+        users[0].intentos_fallidos_login += 1;
+        if (
+          users[0].intentos_fallidos_login >= this.NUM_MAX_INTENTOS_FALLIDOS
+        ) {
+          users[0].habilitado = false;
+          console.log(
+            'Cuenta de usuario deshabilitada por múltiples intentos fallidos de inicio de sesión',
+          );
+        } else {
+          console.log(
+            `Intento fallido de inicio de sesión ${users[0].intentos_fallidos_login} para el usuario ${users[0].email}`,
+          );
+          await this.userRepository.updateUser(users[0]);
+          throw new WrongPasswordError();
+        } // fi
 
-    if (passwordSaletd !== this.saltPassword(users[0].password))
-      throw new WrongPasswordError();
+        await this.userRepository.updateUser(users[0]);
+        throw new DisabledUserError();
+      } // fi
+    } // fi
 
-    return true;
+    const payload = { id: users[0].id, user: users[0] };
+    const access_token = await this.jwtService.signAsync(payload);
+    return access_token;
   }
 
-  private saltPassword(password: string): string {
-    // Simula el proceso de salado de la contraseña
-    return password + 'S@LT';
+  private saltPassword(password: string, salt: string): string {
+    return `${password}${salt}`;
   }
 
   @HttpCode(200)
-  async logout(): Promise<boolean> {
+  async logout(email: string): Promise<boolean> {
     await new Promise((resolve) => setTimeout(resolve, 1000));
-    console.log('User logout service');
+    console.log('User logout service:', email);
     return true;
   }
 }

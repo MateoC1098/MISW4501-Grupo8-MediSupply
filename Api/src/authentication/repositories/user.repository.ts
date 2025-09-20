@@ -34,4 +34,8 @@ export class UserRepository {
       .orderBy('email', 'asc');
     // .limit(1);
   }
+
+  async updateUser(user: User): Promise<void> {
+    await this.knex<User>('users').update(user).where({ id: user.id });
+  }
 }
