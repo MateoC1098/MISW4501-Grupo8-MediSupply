@@ -5,7 +5,7 @@ import { ConfigService } from '@nestjs/config';
 const dbProvider = {
   provide: 'KNEX_CONNECTION',
   inject: [ConfigService],
-  useFactory: async (configService: ConfigService): Promise<Knex> => {
+  useFactory: (configService: ConfigService): Knex => {
     return knex({
       client: 'pg',
       connection: {

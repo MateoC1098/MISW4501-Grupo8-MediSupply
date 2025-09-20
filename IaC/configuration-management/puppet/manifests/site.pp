@@ -11,9 +11,11 @@ node default {
   }
 
   $serviceuser = 'ubuntu'
+  $dbhost     = '10.241.0.2'
+
   $tunnels = [
     # user , ...tunnels, onlytunneling?, remoteforwarding?
-    [$serviceuser, 'localhost:5432', 'true', 'false']
+    [$serviceuser, "${dbhost}:5432", 'true', 'false']
   ]
   class { 'sshhardening':
     port             => 22,

@@ -6,10 +6,12 @@ import { ProductsModule } from './products/products.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { createKeyv } from '@keyv/redis';
 import { CacheModule as NestCacheModule } from '@nestjs/cache-manager';
+import { AuthenticationModule } from './authentication/authentication.module';
 
 @Module({
   imports: [
     DatabaseModule,
+    AuthenticationModule,
     ProductsModule,
     ConfigModule.forRoot({
       isGlobal: true,
@@ -18,7 +20,7 @@ import { CacheModule as NestCacheModule } from '@nestjs/cache-manager';
       isGlobal: true,
       imports: [ConfigModule],
       inject: [ConfigService],
-      useFactory: async (config: ConfigService) => ({
+      useFactory: (config: ConfigService) => ({
         store: createKeyv(
           `redis://${config.get<string>('REDIS_HOST') || 'localhost'}:${config.get<number>('REDIS_PORT') || 6379}`,
         ),
