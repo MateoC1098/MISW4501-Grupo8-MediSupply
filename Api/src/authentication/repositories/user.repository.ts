@@ -26,4 +26,12 @@ export class UserRepository {
       .orderBy('id', 'asc')
       .limit(1);
   }
+
+  async findByEmail(email: string): Promise<User[]> {
+    return await this.knex<User>('users')
+      .select('*')
+      .where({ email })
+      .orderBy('email', 'asc');
+    // .limit(1);
+  }
 }
