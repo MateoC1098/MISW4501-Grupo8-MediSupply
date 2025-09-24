@@ -116,13 +116,6 @@ resource "google_pubsub_topic" "pubsub_topic" {
   }
 }
 
-resource "google_service_networking_connection" "networking_connection" {
-  network                 = module.network.network_id
-  service                 = "servicenetworking.googleapis.com"
-  reserved_peering_ranges = [module.network.private_ip_address[0].name]
-  depends_on              = [module.network]
-}
-
 # db-f1-micro: Maximum Storage Capacity 3062 (GB), Shared Virtual CPUs, 0.6 RAM (GB)
 module "database" {
   name                   = "${var.project}db"
@@ -144,23 +137,6 @@ module "database" {
   depends_on              = [module.public_ips, module.network, google_service_networking_connection.networking_connection]
 }
 
-/*
-resource "google_redis_instance" "redis_instance" {
-  name               = "cache-inventario"
-  display_name       = "Cache Inventario"
-  tier               = "STANDARD_HA"
-  memory_size_gb     = 1
-  region             = var.region
-  connect_mode       = "PRIVATE_SERVICE_ACCESS"
-  authorized_network = module.network.network_id
-  redis_version      = "REDIS_7_2"
-
-  lifecycle {
-    prevent_destroy = false # para poder usarla efimeramente
-  }
-  depends_on = [module.network]
-}
-
 resource "google_vpc_access_connector" "vpc_access_connector" {
   name = "vpcaccessdb"
   subnet {
@@ -172,59 +148,8 @@ resource "google_vpc_access_connector" "vpc_access_connector" {
   region        = "us-east1"
   depends_on    = [module.network]
 }
-*/
 
-resource "google_cloud_run_v2_service" "cloud_run_v2_service_gestion_de_perfiles" {
-  name                = "gestion-de-perfiles"
-  location            = "us-east1"
-  deletion_protection = false
-  ingress             = "INGRESS_TRAFFIC_ALL"
-
-  scaling {
-    max_instance_count = 10
-  }
-  template {
-    containers {
-      image = "ghcr.io/mateoc1098/misw4501-grupo8-medisupply/gestion-perfiles:latest"
-      startup_probe {
-        initial_delay_seconds = 0
-        timeout_seconds       = 1
-        period_seconds        = 3
-        failure_threshold     = 1
-        tcp_socket {
-          port = 3000
-        }
-      }
-      liveness_probe {
-        http_get {
-          path = "/health"
-        }
-      }
-      resources {
-        limits = {
-          cpu    = "2"
-          memory = "1024Mi"
-          # "nvidia.com/gpu" = "1"
-        }
-        # startup_cpu_boost = true
-      }
-      env {
-        name  = "GOOGLE_CLOUD_PROJECT"
-        value = var.project
-      }
-      env {
-        name  = "GOOGLE_APPLICATION_CREDENTIALS"
-        value = "../MEDISUPPLY_APPLICATION_ACCOUNT_KEY.json"
-      }
-    }
-    # node_selector {
-    #   accelerator = "nvidia-l4"
-    # }
-    # gpu_zonal_redundancy_disabled = true
-  }
-  depends_on = [module.database]
-}
-
+/*
 resource "google_cloud_run_v2_service" "cloud_run_v2_service_autenticacion" {
   name                = "autenticacion"
   location            = "us-east1"
@@ -276,23 +201,24 @@ resource "google_cloud_run_v2_service" "cloud_run_v2_service_autenticacion" {
   depends_on = [module.database]
 }
 
-# resource "google_api_gateway_api" "api_gateway_api" {
-#   provider = google-beta
-#   api_id   = "${var.project}-api"
-# }
+resource "google_api_gateway_api" "api_gateway_api" {
+  provider = google-beta
+  api_id   = "${var.project}-api"
+}
 
-# resource "google_api_gateway_api_config" "api_gateway_api_config" {
-#   provider      = google-beta
-#   api           = google_api_gateway_api.api_gateway_api.api_id
-#   api_config_id = "${var.project}-config"
-# 
-#   openapi_documents {
-#     document {
-#       path     = "spec.yaml"
-#       contents = filebase64("openapi.yaml")
-#     }
-#   }
-#   lifecycle {
-#     create_before_destroy = true
-#   }
-# }
+resource "google_api_gateway_api_config" "api_gateway_api_config" {
+  provider      = google-beta
+  api           = google_api_gateway_api.api_gateway_api.api_id
+  api_config_id = "${var.project}-config"
+
+  openapi_documents {
+    document {
+      path     = "spec.yaml"
+      contents = filebase64("openapi.yaml")
+    }
+  }
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+*/

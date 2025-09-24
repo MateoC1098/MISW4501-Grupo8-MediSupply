@@ -42,6 +42,7 @@ apply:
     - plan
   only:
     - main
+    - develop
   resource_group: production
   when: manual
 
@@ -53,5 +54,6 @@ destroy:
     - plan
   only:
     - main
+    - develop
   resource_group: production
   when: manual

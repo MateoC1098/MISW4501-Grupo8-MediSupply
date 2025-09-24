@@ -2,7 +2,7 @@
 
 # Steps to send the puppet folder and the auxiliar scripts to the desired machine.
 # HOST: String - Example: $ALTAMIRA_CLOUD_ARENERO_HOST
-# KEY_TO_USE: String - Example: 'key_devops_altamira_cloud_ecdsa'
+# KEY_TO_USE: String - Example: 'key_devops_ecdsa'
 .template-puppet-setup:
   script:
     - eval $(ssh-agent -s)

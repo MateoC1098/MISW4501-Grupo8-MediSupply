@@ -44,7 +44,7 @@ runcmd:
   # 1. Levantar el servicio de Docker y la aplicacion de Gateway
   - [ systemctl, start, docker ]
   - [ systemctl, enable, docker ]
-  - [ wget, "https://raw.githubusercontent.com/MateoC1098/MISW4501-Grupo8-MediSupply/main/IaC/docker/docker-compose.yml", -O, /home/ubuntu/docker-compose.yml ]
+  - [ wget, "https://raw.githubusercontent.com/MateoC1098/MISW4501-Grupo8-MediSupply/main/Api/docker-compose.prod.yml", -O, /home/ubuntu/docker-compose.yml ]
   - [ chown, ubuntu:docker, /home/ubuntu/docker-compose.yml ]
   - [ su, ubuntu, -c, "cd /home/ubuntu && docker compose up -d --build" ]
   # 2. Configurar el firewall
