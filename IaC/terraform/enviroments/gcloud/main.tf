@@ -201,7 +201,6 @@ resource "google_cloud_run_v2_service" "cloud_run_v2_service_autenticacion" {
   depends_on = [module.database]
 }
 
-
 resource "google_api_gateway_api" "api_gateway_api" {
   provider = google-beta
   api_id   = "${var.project}-api"
