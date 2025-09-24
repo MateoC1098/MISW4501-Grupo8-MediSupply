@@ -1,0 +1,14 @@
+name: local-postgres
+
+services:
+  postgres:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 123456
+      POSTGRES_DB: medissupply
+    container_name: local-postgres
+    ports:
+      - "5432:5432"

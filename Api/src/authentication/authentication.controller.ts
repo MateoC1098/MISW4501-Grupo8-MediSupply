@@ -6,20 +6,17 @@ import {
   HttpException,
   HttpStatus,
   Post,
-  UseGuards,
   Request,
 } from '@nestjs/common';
 import { UserDto } from './dtos/user.dto';
 import { AuthenticationService } from './authentication.service';
 import { WrongPasswordError } from './errors/wrong-password.error';
 import { DisabledUserError } from './errors/disabled-user.error';
-import { AuthenticationGuard } from './authentication.guard';
 
 @Controller('authentication')
 export class AuthenticationController {
   constructor(private authenticationService: AuthenticationService) {}
 
-  @UseGuards(AuthenticationGuard)
   @Get('profile')
   getProfile(@Request() req): Request {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-member-access

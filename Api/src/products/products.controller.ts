@@ -2,7 +2,6 @@ import {
   Controller,
   DefaultValuePipe,
   Get,
-  Param,
   ParseIntPipe,
   Query,
 } from '@nestjs/common';

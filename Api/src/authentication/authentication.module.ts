@@ -6,8 +6,8 @@ import { UserRepository } from './repositories/user.repository';
 import { DatabaseModule } from '../database/database.module';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
-import { AuthenticationGuard } from './authentication.guard';
 import { APP_GUARD } from '@nestjs/core';
+import { RolesGuard } from './roles.guard';
 
 @Module({
   imports: [
@@ -27,7 +27,7 @@ import { APP_GUARD } from '@nestjs/core';
     UserRepository,
     {
       provide: APP_GUARD,
-      useClass: AuthenticationGuard,
+      useClass: RolesGuard,
     },
   ],
   controllers: [AuthenticationController],
