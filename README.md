@@ -13,7 +13,7 @@ Universidad de los Andes
 
 ## Vista de Despliegue; Modelo diagrama de despliegue, notacion libre.
 
-![Digrama de despliegue](./docs/Diagramas-de-Despliegue-Semana7.png)
+![Digrama de despliegue](./docs/Diagramas-de-Despliegue-Semana8.png)
 
 ## Repositorios:
 
@@ -23,3 +23,9 @@ Universidad de los Andes
 ## Sitio
 
 [https://gateway.medisupply.site](https://gateway.medisupply.site)
+
+## Vista de Informacion; Modelo entidad-relación, notamcion UML 2.5
+
+![Diagrama entidad-relacion](./docs/medissupply-public.png)
+
+[init.sql](./IaC/docker/local-postgres/init.sql)
