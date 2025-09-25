@@ -122,8 +122,8 @@ module "database" {
   database_version       = "POSTGRES_17"
   source                 = "../../modules/gcloud/database"
   region                 = var.region
-  tier                   = "db-f1-micro" # $10.001 USD Month (ZONAl)
-  availability_type      = "REGIONAL"
+  tier                   = "db-f1-micro" # $10.001 USD Month (ZONAL)
+  availability_type      = "ZONAL" # "REGIONAL"
   private_network        = module.network.network_id
   reserved_peering_range = module.network.private_ip_address[0].name
   authorizednets = [
@@ -150,8 +150,8 @@ resource "google_vpc_access_connector" "vpc_access_connector" {
 }
 
 /*
-resource "google_cloud_run_v2_service" "cloud_run_v2_service_autenticacion" {
-  name                = "autenticacion"
+resource "google_cloud_run_v2_service" "cloud_run_v2_service_medisupply_api" {
+  name                = "medisupply-api"
   location            = "us-east1"
   deletion_protection = false
   ingress             = "INGRESS_TRAFFIC_ALL"
@@ -161,7 +161,7 @@ resource "google_cloud_run_v2_service" "cloud_run_v2_service_autenticacion" {
   }
   template {
     containers {
-      image = "ghcr.io/mateoc1098/misw4501-grupo8-medisupply/autenticacion:latest"
+      image = "ghcr.io/mateoc1098/misw4501-grupo8-medisupply/medisupply-api:latest"
       startup_probe {
         initial_delay_seconds = 0
         timeout_seconds       = 1
